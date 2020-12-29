@@ -18,6 +18,7 @@ import run.halo.app.model.entity.PostComment;
 import run.halo.app.model.enums.CommentStatus;
 import run.halo.app.model.enums.PostStatus;
 import run.halo.app.model.params.PostCommentParam;
+import run.halo.app.model.params.PostQuery;
 import run.halo.app.model.vo.*;
 import run.halo.app.service.OptionService;
 import run.halo.app.service.PostCommentService;
@@ -26,10 +27,11 @@ import run.halo.app.service.PostService;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 /**
- * Content post controller.
+ * 文章
  *
  * @author johnniang
  * @author ryanwang
@@ -57,6 +59,22 @@ public class PostController {
     @ApiOperation("Lists posts")
     public Page<PostListVO> pageBy(@PageableDefault(sort = "createTime", direction = DESC) Pageable pageable) {
         Page<Post> postPage = postService.pageBy(PostStatus.PUBLISHED, pageable);
+        return postService.convertToListVo(postPage);
+    }
+
+    /**
+     * 根据分类ID查询文章列表
+     *
+     * @param categoryId
+     * @return
+     */
+    @GetMapping("pageByCategoryId")
+    @ApiOperation("Lists posts")
+    public Page<PostListVO> pageByCategoryId(@RequestParam(value = "categoryId") Integer categoryId) {
+        Pageable pageable = PageRequest.of(0,3000);
+        PostQuery postQuery = new PostQuery();
+        postQuery.setCategoryId(categoryId);
+        Page<Post> postPage = postService.pageBy(postQuery, pageable);
         return postService.convertToListVo(postPage);
     }
 
